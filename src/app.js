@@ -9,8 +9,10 @@ const app = express();
 app.use("/", (req, res) => res.send("HELLO WORLD!"));
 app.use("/test", (req, res) => res.send("HELLO FROM TEST!"));
 app.use("/user", (req, res) => res.send("HELLO FROM USER!"));
+// app.use("/", (req, res) => res.send("HELLO WORLD!"));
 
-// listening
+// Listen for connections.
+// A node http.Server is returned, with this application (which is a Function) as its callback
 app.listen(3000, () => {
   console.log("APP will listen incoming requests at port 3000");
 });
