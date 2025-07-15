@@ -3,18 +3,16 @@ const { connectDb } = require("./config/database");
 const { User } = require("./models/user");
 const app = express();
 
+// Use express.json() middleware to parse incoming JSON requests and populate it into req.body. This is required before defining routes that expect JSON data.
+// this will be applied to all incoming requests, allowing us to access the parsed JSON data in our route handlers.
+app.use(express.json());
+
 // post api to add user to DB.
 app.post("/signup", async (req, res) => {
   // creating a new instance of User Model
-  const user = new User({
-    firstName: "Rocky",
-    lastName: "Bhai",
-    email: "rocky@gmail.com",
-    password: "rocky@123",
-    age: 25,
-  });
+  const user = new User(req.body);
 
-  // almost all DB operations of mongoose are Async 
+  // almost all mongoose operations return a promise, so we can use async/await to handle the asynchronous nature of the operation.
   try {
     await user.save();
     res.send("User Saved Successfully!");
