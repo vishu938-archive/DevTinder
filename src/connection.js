@@ -12,13 +12,21 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   // creating a new instance of User Model
   const user = new User(req.body);
+  const { password, gender } = req.body;
+
+  // if (!["male", "female"].includes(gender.toLowerCase())) {
+  //   return res.status(400).json({ message: "Gender must be male or female" });
+  // }
 
   // almost all mongoose operations return a promise, so we can use async/await to handle the asynchronous nature of the operation.
   try {
     await user.save();
     res.send("User Saved Successfully!");
   } catch (error) {
-    res.status(400).send("Error saving user", error.message);
+    res.status(400).json({
+      message: "Error saving user",
+      error: error.message,
+    });
   }
 });
 
@@ -95,10 +103,29 @@ app.delete("/delete-user", async (req, res) => {
 app.patch("/user", async (req, res) => {
   const userId = req.query.id;
   try {
-    const user = await User.findByIdAndUpdate(userId, req.body);
+    // API LEVEL VALIDATION - checking if the request body contains only allowed fields for update
+    const allowed_updates = ["gender", "age", "skills", "photoUrl"];
+    const isValidData = Object.keys(req.body).every((u) =>
+      allowed_updates.includes(u)
+    );
+
+    if (!isValidData) {
+      throw new Error("Invalid Input Data, please check it");
+    }
+
+    if (req.body.skills.length > 5) {
+      throw new Error("Skills should not be more than 5");
+    }
+
+    const user = await User.findByIdAndUpdate(userId, req.body, {
+      runValidators: true,
+    });
     res.send("User updated successfully");
   } catch (err) {
-    res.status(400).send("Error updating the user", err);
+    res.status(400).json({
+      message: "Error updating the user",
+      error: err.message,
+    });
   }
 });
 
