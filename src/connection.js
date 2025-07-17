@@ -1,6 +1,8 @@
 const express = require("express");
 const { connectDb } = require("./config/database");
 const { User } = require("./models/user");
+const { validateData } = require("./utils/validation");
+const bycrypt = require("bcrypt");
 const app = express();
 
 // Use express.json() middleware to parse incoming JSON requests and populate it into req.body. This is required before defining routes that expect JSON data.
@@ -10,16 +12,23 @@ app.use(express.json());
 
 // post api to add user to DB.
 app.post("/signup", async (req, res) => {
-  // creating a new instance of User Model
-  const user = new User(req.body);
-  const { password, gender } = req.body;
-
-  // if (!["male", "female"].includes(gender.toLowerCase())) {
-  //   return res.status(400).json({ message: "Gender must be male or female" });
-  // }
-
   // almost all mongoose operations return a promise, so we can use async/await to handle the asynchronous nature of the operation.
   try {
+    // validate the incoming request data
+    validateData(req);
+
+    // hash the password before saving it to the database
+    const passwordHash = await bycrypt.hash(req.body.password, 10);
+
+    const requestObj = {
+      firstName: req.body.firstName,
+      age: req.body.age,
+      email: req.body.email,
+      password: passwordHash,
+    };
+    // creating a new instance of User Model
+    const user = new User(requestObj);
+
     await user.save();
     res.send("User Saved Successfully!");
   } catch (error) {

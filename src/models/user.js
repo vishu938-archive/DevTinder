@@ -31,18 +31,18 @@ const userSchema = new Schema(
       //   validator: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
       //   message: "Please enter valid email",
       // },
-      validate: {
-        validator: (value) => validator.isEmail(value),
-        message: "Please enter valid email",
-      },
+      // validate: {
+      //   validator: (value) => validator.isEmail(value),
+      //   message: "Please enter valid email",
+      // },
       trim: true,
       lowercase: true,
     },
     password: {
       type: String,
       required: true,
-      minLength: 10,
-      maxLength: 16,
+      // minLength: 10,
+      // maxLength: 16,
       // validate: {
       //   validator: (value) => /^[a-zA-Z0-9#@]+$/.test(value),
       //   message: "Password can only contain letters, numbers, #, and @",
