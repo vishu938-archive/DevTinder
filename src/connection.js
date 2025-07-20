@@ -2,7 +2,7 @@ const express = require("express");
 const { connectDb } = require("./config/database");
 const { User } = require("./models/user");
 const { validateData } = require("./utils/validation");
-const bycrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const app = express();
 
 // Use express.json() middleware to parse incoming JSON requests and populate it into req.body. This is required before defining routes that expect JSON data.
@@ -18,7 +18,7 @@ app.post("/signup", async (req, res) => {
     validateData(req);
 
     // hash the password before saving it to the database
-    const passwordHash = await bycrypt.hash(req.body.password, 10);
+    const passwordHash = await bcrypt.hash(req.body.password, 10);
 
     const requestObj = {
       firstName: req.body.firstName,
@@ -35,6 +35,27 @@ app.post("/signup", async (req, res) => {
     res.status(400).json({
       message: "Error saving user",
       error: error.message,
+    });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { password, email } = req.body;
+
+    const user = await User.findOne({ email });
+    // compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+  
+    if (isPasswordValid) {
+      res.send("Login successful!");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: "Error while login",
+      error: err.message,
     });
   }
 });
